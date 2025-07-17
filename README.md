@@ -1,7 +1,7 @@
 # Nexus Template for Marzban
 Nexus is a Marzban template with a modern design
 
-> ℹ️ At the moment, the Nexus Template is only available in `Russian`. 
+> ℹ️ At the moment, the Nexus Template is only available in `Russian`. <br>
 More languages will be added soon ( `EN`, `BE`, `UA` ).
 
 ![Nexus Template for Marzban](https://github.com/atemmix/Nexus/blob/main/screenshots/1.png)
