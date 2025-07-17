@@ -1,5 +1,7 @@
 # Nexus Template for Marzban
-Nexus is a Marzban template with a modern design<br>
+Nexus is a Marzban template with a modern design
+
+![Nexus Template for Marzban](https://github.com/atemmix/Nexus/blob/main/screenshots/1.png)
 
 > This theme uses icons from the Iconify library — Solar Icons & Emoji One (Colored).<br>
 Icons are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) license.
