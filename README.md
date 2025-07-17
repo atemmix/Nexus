@@ -14,7 +14,7 @@ Icons are licensed under the Creative Commons Attribution 4.0 International (CC 
 
 Upload the template file to the server:
 ``` bash
-sudo wget -O /var/lib/marzban/templates/subscription/index.html https://raw.githubusercontent.com/atemmix/Nexus/main/theme/nexus/index.html
+sudo wget -O /var/lib/marzban/templates/subscription/index.html https://raw.githubusercontent.com/atemmix/Nexus/main/subscription/index.html
 ```
 
 Edit the Marzban `.env` file and add the following lines:
