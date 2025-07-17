@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Marzban - Безопасный сервис подключения</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/32/sourcetree.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/16/sourcetree.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/sourcetree.png">
+    <meta name="msapplication-TileImage" content="https://img.icons8.com/fluency/144/sourcetree.png">
+    <meta name="msapplication-TileColor" content="#0ca4f8">
+    <meta name="theme-color" content="#0ca4f8">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#f0f8ff","100":"#dff1ff","200":"#bae3ff","300":"#7ccfff","400":"#36b9ff","500":"#0ca4f8","600":"#0083ea","700":"#0068bc","800":"#005a9e","900":"#074b81","950":"#042d4f"},
+                        background: {"900":"#0a0a0a","800":"#121212","700":"#1a1a1a","600":"#222222"},
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(6, 182, 212, 0.25)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Core styles */
+        body {
+            background-color: #13131a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(90deg, #1a1a23 0%, #13131a 100%);
+        }
+        
+        .gradient-btn {
+            background: linear-gradient(90deg, #0070F3 0%, #00A3FF 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-btn:hover {
+            background: linear-gradient(90deg, #0062D3 0%, #0095ED 100%);
+            transform: translateY(-2px);
+        }
+        
+        .border-gradient {
+            border: 1px solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(to right, #13131a, #13131a), linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #0070F3 0%, #00A3FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .card {
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .bg-dots {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Scrollbar */
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+            background-color: #4B5563;
+        }
+        
+        .scrollbar-thumb-gray-500:hover::-webkit-scrollbar-thumb {
+            background-color: #6B7280;
+        }
+        
+        .scrollbar-track-transparent::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+        
+        /* Client button active state */
+        .client-btn.active {
+            background-color: rgba(0, 112, 243, 0.2);
+            border-color: rgba(0, 112, 243, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Remove hover from client and support cards */
+        .client-card-hover:hover {
+            background-color: transparent !important;
+        }
+        
+        /* Запрет выделения текста и установка курсора по умолчанию */
+        body, p, h1, h2, h3, h4, h5, h6, span, div {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            cursor: default;
+        }
+        
+        /* Курсор pointer для интерактивных элементов */
+        a, button, [role="button"], 
+        .gradient-btn, 
+        [class*="hover"], 
+        input, select, textarea,
+        [onclick] {
+            cursor: pointer;
+        }
+        
+        /* Курсор pointer для вложенных элементов внутри кликабельных контейнеров */
+        a *, button *, [role="button"] *, 
+        .gradient-btn *, [onclick] *, 
+        [class*="hover"] * {
+            cursor: pointer;
+        }
+        
+        /* Дополнительные стили для прокрутки */
+        .scrollable-content {
+            overflow-y: auto;
+            overscroll-behavior: contain !important; /* Предотвращает прокрутку родительского элемента */
+        }
+        
+        :root {
+            --text-light: #f3f4f6;
+            --bg-darker: #0a0a0a;
+            --accent-gradient: linear-gradient(135deg, #0ca4f8, #2dd4bf);
+        }
+        
+        /* Предотвращение горизонтального скролла */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        [x-cloak] { display: none !important; }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-darker);
+            color: var(--text-light);
+        }
+        
+        .accent-gradient {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .gradient-btn {
+            background: var(--accent-gradient);
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-btn:hover {
+            box-shadow: 0 0 20px 0 rgba(12, 164, 248, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .pill {
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .glow {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            border-radius: 100%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+        
+        .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Обновленные стили для border-radius */
+        .rounded-lg {
+            border-radius: 1.25rem !important;
+        }
+        .rounded-xl {
+            border-radius: 1.25rem !important;
+        }
+        .rounded-2xl {
+            border-radius: 1.25rem !important;
+        }
+        .rounded-3xl {
+            border-radius: 1.25rem !important;
+        }
+        /* Сохраняем round-full для круглых элементов */
+        .rounded-full {
+            border-radius: 9999px !important;
+        }
+        
+        /* Custom scrollbar styles */
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.8);
+        }
+        
+        /* For Firefox */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+        
+        /* Hide scrollbar in IE/Edge */
+        .scrollbar-thin {
+            -ms-overflow-style: none;
+        }
+        
+        /* Dark theme colors */
+        .bg-background-900 {
+            background-color: #0f172a;
+        }
+        
+        .bg-background-800 {
+            background-color: #1e293b;
+        }
+        
+        .bg-background-700 {
+            background-color: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <div class="noise"></div>
+    
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-background-900/80 backdrop-blur-md">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex items-center justify-between h-16 md:h-20">
+                <!-- Logo -->
+                <a href="javascript:void(0);" onclick="window.location.href=window.location.pathname; return false;" class="flex items-center gap-2 cursor-pointer">
+                    <span class="text-xl font-bold uppercase">Marzban</span>
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-sm text-gray-300 hover:text-white transition-colors">Возможности</a>
+                    <a href="#protocols" class="text-sm text-gray-300 hover:text-white transition-colors">Протоколы</a>
+                    <a href="#subscription" class="text-sm text-gray-300 hover:text-white transition-colors">Подписка</a>
+                    <a href="#clients" class="text-sm text-gray-300 hover:text-white transition-colors">Клиенты</a>
+                    <a href="#support" class="text-sm text-gray-300 hover:text-white transition-colors">Поддержка</a>
+                </nav>
+                
+                <!-- Mobile Menu Button -->
+                <button id="menu-toggle" class="md:hidden p-2 text-white focus:outline-none">
+                    <iconify-icon icon="heroicons:bars-3" width="24" height="24"></iconify-icon>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-background-800 border-t border-gray-800">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <a href="#features" class="block py-2 text-gray-300 hover:text-white">Возможности</a>
+                <a href="#protocols" class="block py-2 text-gray-300 hover:text-white">Протоколы</a>
+                <a href="#subscription" class="block py-2 text-gray-300 hover:text-white">Подписка</a>
+                <a href="#clients" class="block py-2 text-gray-300 hover:text-white">Клиенты</a>
+                <a href="#support" class="block py-2 text-gray-300 hover:text-white">Поддержка</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 md:pt-60 md:pb-60 relative">
+        <div class="glow bg-primary-500 top-32 left-1/4 opacity-10"></div>
+        <div class="glow bg-cyan-400 bottom-10 right-1/4 opacity-5"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-block mb-6">
+                    <span class="pill bg-primary-500/10 text-primary-400 border border-primary-500/20">
+                        Простой доступ к глобальной сети
+                    </span>
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
+                    <span class="accent-gradient">Безопасное</span> соединение для всех ваших устройств
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                    Стабильное, быстрое и защищенное подключение с глобальным покрытием и 
+                    простой настройкой на всех устройствах.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#subscription" class="gradient-btn text-white font-medium px-8 py-3 rounded-full shadow-lg">
+                        Моя подписка
+                    </a>
+                    <a href="#clients" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium px-8 py-3 rounded-full transition-colors">
+                        Скачать клиенты
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="pt-32 pb-20 relative">
+        <div class="glow bg-primary-500 bottom-40 left-1/3 opacity-10"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Возможности</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Раскройте потенциал безопасного соединения с помощью наших передовых функций
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-16">
+                <!-- Feature 1 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:shield-check" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Шифрование военного уровня</h3>
+                    <p class="text-gray-300">
+                        Все ваши соединения защищены передовыми алгоритмами шифрования, обеспечивающими максимальную безопасность ваших данных.
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:bolt" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Высокая скорость соединения</h3>
+                    <p class="text-gray-300">
+                        Оптимизированные серверы и протоколы обеспечивают молниеносное соединение без задержек для любых задач.
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:globe-alt" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Глобальное покрытие</h3>
+                    <p class="text-gray-300">
+                        Серверы, расположенные по всему миру, обеспечивают доступ к контенту без географических ограничений.
+                    </p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:device-phone-mobile" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Поддержка всех устройств</h3>
+                    <p class="text-gray-300">
+                        Используйте сервис на всех ваших устройствах: Windows, macOS, Android, iOS и других платформах.
+                    </p>
+                </div>
+                
+                <!-- Feature 5 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:adjustments-horizontal" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Гибкая настройка</h3>
+                    <p class="text-gray-300">
+                        Выбирайте между различными протоколами в зависимости от ваших потребностей.
+                    </p>
+                </div>
+                
+                <!-- Feature 6 -->
+                <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-5">
+                        <iconify-icon icon="heroicons:chart-bar" width="28" height="28" class="text-primary-400"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Подробная статистика</h3>
+                    <p class="text-gray-300">
+                        Отслеживайте потребление трафика и производительность с помощью наглядной и детальной статистики.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Protocols Section -->
+    <section id="protocols" class="pt-32 pb-20 relative bg-background-900">
+        <div class="glow bg-primary-500 top-1/3 left-1/3 opacity-10"></div>
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Протоколы и транспорты</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Выберите оптимальное решение для ваших потребностей из множества поддерживаемых протоколов
+                </p>
+            </div>
+            
+            <div class="relative z-10">
+                <div class="pill bg-primary-500/10 text-primary-400 border border-primary-500/20 mb-4 inline-block">
+                    Мультипротокольная поддержка
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-6">
+                    Выберите оптимальный протокол для любой ситуации
+                </h3>
+                <p class="text-gray-300 mb-8">
+                    Наш сервис поддерживает множество современных протоколов для обеспечения максимальной совместимости и производительности. 
+                    В вашем распоряжении протоколы VMess, VLESS, Trojan и Shadowsocks с различными типами транспорта (TCP, WebSocket, gRPC) и технологиями шифрования (TLS, REALITY).
+                </p>
+                
+                <!-- Протоколы сравнение в виде графика -->
+                <div class="mb-12">
+                    <h4 class="text-xl font-semibold mb-4">Сравнение протоколов</h4>
+                    <div class="bg-background-800/50 border border-white/5 rounded-xl p-6 overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-left p-2 text-gray-400 font-medium">Протокол</th>
+                                    <th class="text-center p-2 text-gray-400 font-medium">Скорость</th>
+                                    <th class="text-center p-2 text-gray-400 font-medium">Безопасность</th>
+                                    <th class="text-center p-2 text-gray-400 font-medium">Маскировка</th>
+                                    <th class="text-center p-2 text-gray-400 font-medium">Стабильность</th>
+                                    <th class="text-left p-2 text-gray-400 font-medium">Лучшее применение</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">VLESS TCP Reality</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 98%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Максимальная безопасность с высокой скоростью</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">Trojan TCP TLS</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Надёжное обхождение блокировок</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">VMess TCP TLS</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Универсальное решение для большинства ситуаций</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">VMess WebSocket TLS</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Работа через CDN и в блокируемых сетях</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">Trojan gRPC</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 70%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Высокая стабильность в сложных сетях</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">VMess gRPC</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 70%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-cyan-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Маскировка под обычный трафик</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">VLESS gRPC</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Баланс скорости и маскировки</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">Shadowsocks gRPC</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 70%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Улучшенная маскировка для Shadowsocks</td>
+                                </tr>
+                                <tr class="border-t border-white/5">
+                                    <td class="p-2 font-medium">Shadowsocks</td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 65%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex justify-center">
+                                            <div class="w-24 bg-gray-700 rounded-full h-2.5">
+                                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-sm">Высокая скорость для стриминга и игр</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="absolute right-0 top-0 w-1/2 h-full bg-primary-500/5 filter blur-3xl rounded-full transform translate-x-1/2"></div>
+            <div class="absolute left-0 bottom-0 w-1/3 h-1/2 bg-blue-500/5 filter blur-3xl rounded-full transform -translate-x-1/3"></div>
+        </div>
+    </section>
+    
+    <!-- Subscription Section -->
+    <section id="subscription" class="py-32 bg-background-800 relative overflow-hidden">
+        <div class="glow bg-primary-500 top-1/4 right-1/4 opacity-10"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ваша подписка</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Управляйте вашей подпиской и получите доступ к настройкам соединения
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mx-auto">
+                <!-- User Info & Stats -->
+                <div class="lg:col-span-5">
+                    <!-- User Profile Card -->
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl p-6 mb-6 backdrop-blur-sm">
+                        <div class="flex items-center">
+                            <div class="mr-4 relative">
+                                <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+                                    <iconify-icon icon="heroicons:user" width="32" height="32"></iconify-icon>
+                                </div>
+                                {% if user.status.value == 'active' %}
+                                <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background-700 flex items-center justify-center">
+                                    <iconify-icon icon="heroicons:check" class="text-white" width="12" height="12"></iconify-icon>
+                                </div>
+                                {% else %}
+                                <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full border-2 border-background-700 flex items-center justify-center">
+                                    <iconify-icon icon="heroicons:x-mark" class="text-white" width="12" height="12"></iconify-icon>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Пользователь</div>
+                                <div class="text-xl font-bold">{{ user.username }}</div>
+                                <div class="flex mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.status.value == 'active' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        <span class="w-2 h-2 mr-1 rounded-full {% if user.status.value == 'active' %}bg-green-600{% else %}bg-red-600{% endif %}"></span>
+                                        {% if user.status.value == 'active' %}Активна{% else %}Неактивна{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Usage Cards -->
+                    <div class="space-y-6">
+                        <!-- Traffic Usage Card -->
+                        <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl p-6 backdrop-blur-sm" data-used-traffic="{{ user.used_traffic }}" data-data-limit="{% if not user.data_limit %}∞{% else %}{{ user.data_limit }}{% endif %}">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center mr-3">
+                                    <iconify-icon icon="heroicons:chart-bar" class="text-primary-400" width="24" height="24"></iconify-icon>
+                                </div>
+                                <h3 class="text-lg font-semibold">Использование трафика</h3>
+                            </div>
+                            
+                            <div class="flex justify-between items-end mb-2 overflow-hidden">
+                                <div class="min-w-0">
+                                    <span class="text-2xl md:text-3xl font-bold truncate block">{{ user.used_traffic | bytesformat }}</span>
+                                    <span class="text-gray-400 text-sm ml-1">/ {% if not user.data_limit %}∞{% else %}{{ user.data_limit | bytesformat }}{% endif %}</span>
+                                </div>
+                                <div class="text-right flex-shrink-0 ml-2">
+                                    <div class="flex flex-col items-end flex-shrink-0">
+                                        <span class="text-3xl font-bold text-primary-400" id="traffic-percentage">{% if not user.data_limit %}∞{% else %}0%{% endif %}</span>
+                                        <div class="text-sm text-gray-400">использовано</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="w-full h-3 bg-background-800 rounded-full overflow-hidden">
+                                <div id="traffic-bar" class="h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full" style="width: 0%"></div>
+                            </div>
+                        
+                        </div>
+                        
+                        <!-- Expiration Card -->
+                        <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl p-6 backdrop-blur-sm">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center mr-3">
+                                    <iconify-icon icon="heroicons:calendar" class="text-cyan-400" width="24" height="24"></iconify-icon>
+                                </div>
+                                <h3 class="text-lg font-semibold">Срок действия</h3>
+                            </div>
+                            
+                            <div class="flex justify-between items-end mb-4 overflow-hidden">
+                                <div class="min-w-0">
+                                    <div class="text-sm text-gray-400">Дата истечения</div>
+                                    <div class="text-xl font-medium truncate expire-date-display">{% if user.expire == 'None' %}Бессрочно{% else %}{{ user.expire }}{% endif %}</div>
+                                </div>
+                                <div class="flex flex-col items-end flex-shrink-0 ml-2">
+                                    <div class="text-3xl font-bold text-cyan-400" id="expire-percentage">0</div>
+                                    <div class="text-sm text-gray-400">дней осталось</div>
+                                </div>
+                            </div>
+                            
+                            <div class="w-full h-3 bg-background-800 rounded-full overflow-hidden">
+                                <div id="expire-bar" class="h-full bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Get Help Button -->
+                        <div class="mt-6">
+                            <a href="#support" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl transition-colors flex items-center justify-center py-3">
+                                <iconify-icon icon="heroicons:lifebuoy" class="mr-2" width="20" height="20"></iconify-icon>
+                                <span>Нужна помощь?</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connection Settings Card -->
+                <div class="lg:col-span-7">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center mr-3">
+                                        <iconify-icon icon="heroicons:link" class="text-primary-400" width="24" height="24"></iconify-icon>
+                                    </div>
+                                    <h3 class="text-lg font-semibold">Настройки подключения</h3>
+                                </div>
+                            </div>
+                            
+                            <!-- Scrollable area for protocol links -->
+                            <div class="h-[556px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-500 scrollable-content">
+                                <div id="links_section" class="space-y-2 py-1" style="cursor: default;">
+                                    <!-- Links will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Clients Section -->
+    <section id="clients" class="py-32 bg-background-900 relative overflow-hidden">
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Клиенты</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Выберите и загрузите приложение для любого вашего устройства
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- Client Tabs -->
+                <div class="grid grid-cols-5 gap-4 mb-6">
+                    <button id="windows-btn" class="client-btn flex flex-col items-center justify-center bg-background-700/50 border border-white/5 rounded-2xl p-4 transition-all duration-300 active">
+                        <iconify-icon icon="ri:windows-fill" width="24" height="24" class="text-primary-400 mb-2"></iconify-icon>
+                        <span class="text-sm font-medium">Windows</span>
+                    </button>
+                    <button id="macos-btn" class="client-btn flex flex-col items-center justify-center bg-background-700/50 border border-white/5 rounded-2xl p-4 transition-all duration-300">
+                        <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400 mb-2"></iconify-icon>
+                        <span class="text-sm font-medium">macOS</span>
+                    </button>
+                    <button id="android-btn" class="client-btn flex flex-col items-center justify-center bg-background-700/50 border border-white/5 rounded-2xl p-4 transition-all duration-300">
+                        <iconify-icon icon="ri:android-fill" width="24" height="24" class="text-primary-400 mb-2"></iconify-icon>
+                        <span class="text-sm font-medium">Android</span>
+                    </button>
+                    <button id="ios-btn" class="client-btn flex flex-col items-center justify-center bg-background-700/50 border border-white/5 rounded-2xl p-4 transition-all duration-300">
+                        <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400 mb-2"></iconify-icon>
+                        <span class="text-sm font-medium">iOS</span>
+                    </button>
+                    <button id="linux-btn" class="client-btn flex flex-col items-center justify-center bg-background-700/50 border border-white/5 rounded-2xl p-4 transition-all duration-300">
+                        <iconify-icon icon="ri:ubuntu-fill" width="24" height="24" class="text-primary-400 mb-2"></iconify-icon>
+                        <span class="text-sm font-medium">Linux</span>
+                    </button>
+                </div>
+                
+                <!-- Windows Clients -->
+                <div class="relative mt-2" id="windows-clients">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-xl backdrop-blur-sm">
+                        <!-- Hiddify -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:windows-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Hiddify</h3>
+                                    <p class="text-sm text-gray-400">Мультиплатформенный клиент с простым интерфейсом и автоматическим обновлением</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#WindowsHiddify" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- V2rayN -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:windows-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayN</h3>
+                                    <p class="text-sm text-gray-400">Популярный клиент с широкими возможностями настройки</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#WindowsV2rayN" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- NekoRay -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:windows-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">NekoRay</h3>
+                                    <p class="text-sm text-gray-400">Легкий и быстрый клиент с удобным управлением подписками</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#WindowsNekoRay" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- macOS Clients -->
+                <div class="relative mt-2 hidden" id="macos-clients">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-xl backdrop-blur-sm">
+                        <!-- V2rayTUN -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayTUN</h3>
+                                    <p class="text-sm text-gray-400">Оптимизированный клиент с высокой скоростью и функцией TUN</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#macOSV2rayTUN" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hiddify -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Hiddify</h3>
+                                    <p class="text-sm text-gray-400">Мультиплатформенный клиент с простым интерфейсом и автоматическим обновлением</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#macOSHiddify" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- V2rayU -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayU</h3>
+                                    <p class="text-sm text-gray-400">Легкий и быстрый клиент для macOS с открытым исходным кодом</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#macOSV2rayU" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Android Clients -->
+                <div class="relative mt-2 hidden" id="android-clients">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-xl backdrop-blur-sm">
+                        <!-- V2rayTUN -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:android-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayTUN</h3>
+                                    <p class="text-sm text-gray-400">Оптимизированный клиент с высокой скоростью и функцией TUN</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#AndroidV2rayTUN" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hiddify -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:android-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Hiddify</h3>
+                                    <p class="text-sm text-gray-400">Мультиплатформенный клиент с простым интерфейсом и автоматическим обновлением</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#AndroidHiddify" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- V2rayNG -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:android-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayNG</h3>
+                                    <p class="text-sm text-gray-400">Популярный клиент с широкими возможностями настройки</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#AndroidV2rayNG" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- iOS Clients -->
+                <div class="relative mt-2 hidden" id="ios-clients">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-xl backdrop-blur-sm">
+                        <!-- V2rayTUN -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">V2rayTUN</h3>
+                                    <p class="text-sm text-gray-400">Оптимизированный клиент с высокой скоростью и функцией TUN</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#iOSV2rayTUN" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hiddify -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Hiddify</h3>
+                                    <p class="text-sm text-gray-400">Мультиплатформенный клиент с простым интерфейсом и автоматическим обновлением</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#iOSHiddify" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Streisand -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Streisand</h3>
+                                    <p class="text-sm text-gray-400">Продвинутый клиент с поддержкой всех протоколов и высокой скоростью работы</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#iOSStreisand" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Shadowrocket -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:apple-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Shadowrocket</h3>
+                                    <p class="text-sm text-gray-400">Популярный клиент с простым интерфейсом и поддержкой всех протоколов</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#iOSShadowrocket" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Linux Clients -->
+                <div class="relative mt-2 hidden" id="linux-clients">
+                    <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-xl backdrop-blur-sm">
+                        <!-- Hiddify -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:ubuntu-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Hiddify</h3>
+                                    <p class="text-sm text-gray-400">Мультиплатформенный клиент с простым интерфейсом и автоматическим обновлением</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#LinuxHiddify" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400">
+                                    Рекомендуемый
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Qv2ray -->
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 mr-4 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <iconify-icon icon="ri:ubuntu-fill" width="24" height="24" class="text-primary-400"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold mb-1">Qv2ray</h3>
+                                    <p class="text-sm text-gray-400">Мощный кроссплатформенный клиент с расширяемой функциональностью</p>
+                                </div>
+                                <div class="ml-4">
+                                    <a href="#LinuxQv2ray" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors px-4 py-2 rounded-xl text-primary-400 flex items-center">
+                                        <iconify-icon icon="heroicons:arrow-down-tray" class="mr-2" width="18" height="18"></iconify-icon>
+                                        Скачать
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    VLESS
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                    VMess
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-500/10 text-green-400">
+                                    Trojan
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-500/10 text-yellow-400">
+                                    Shadowsocks
+                                </span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Support Section -->
+    <section id="support" class="py-60 relative bg-background-800">
+        <div class="glow bg-primary-500 top-1/3 right-1/4 opacity-10"></div>
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Поддержка</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Нужна помощь? Наша команда поддержки всегда готова ответить на ваши вопросы
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                <!-- Telegram Support -->
+                <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm transition-all duration-300">
+                    <div class="p-6 flex flex-col h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center mr-4">
+                                <iconify-icon icon="simple-icons:telegram" class="text-primary-400" width="28" height="28"></iconify-icon>
+                            </div>
+                            <h3 class="text-lg font-semibold">Telegram</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 flex-grow">
+                            Самый быстрый способ связаться с нами — написать в нашу группу поддержки в Telegram
+                        </p>
+                        <a href="#Telegramlink" target="_blank" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors rounded-xl w-full px-4 py-3 text-primary-400 font-medium flex items-center justify-center mt-auto">
+                            <iconify-icon icon="simple-icons:telegram" class="mr-2" width="18" height="18"></iconify-icon>
+                            Написать в Telegram
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- VK Support -->
+                <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm transition-all duration-300">
+                    <div class="p-6 flex flex-col h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center mr-4">
+                                <iconify-icon icon="simple-icons:vk" class="text-primary-400" width="28" height="28"></iconify-icon>
+                            </div>
+                            <h3 class="text-lg font-semibold">ВКонтакте</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 flex-grow">
+                            Посетите нашу группу ВКонтакте для обновлений, новостей и поддержки
+                        </p>
+                        <a href="#VKlink" target="_blank" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors rounded-xl w-full px-4 py-3 text-primary-400 font-medium flex items-center justify-center mt-auto">
+                            <iconify-icon icon="simple-icons:vk" class="mr-2" width="18" height="18"></iconify-icon>
+                            Перейти в группу
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Discord -->
+                <div class="bg-background-700/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm transition-all duration-300">
+                    <div class="p-6 flex flex-col h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center mr-4">
+                                <iconify-icon icon="simple-icons:discord" class="text-primary-400" width="28" height="28"></iconify-icon>
+                            </div>
+                            <h3 class="text-lg font-semibold">Discord</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 flex-grow">
+                            Присоединяйтесь к нашему сообществу в Discord для общения и быстрой поддержки
+                        </p>
+                        <a href="#Discordlink" target="_blank" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors rounded-xl w-full px-4 py-3 text-primary-400 font-medium flex items-center justify-center mt-auto">
+                            <iconify-icon icon="simple-icons:discord" class="mr-2" width="18" height="18"></iconify-icon>
+                            Присоединиться
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-10 bg-background-900 relative overflow-hidden">
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold uppercase">Marzban</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">Безопасное соединение для всех ваших устройств</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2023-2025 All rights reserved.</p>
+                
+                <div class="flex gap-8">
+                    <p class="text-gray-500 text-sm mb-4 md:mb-0">Nexus template by <a href="https://srv6.ru/" target="_blank" class="text-primary-400">ATEMMIX</a> & <a href="https://www.trae.ai/" target="_blank" class="text-primary-400">TRAE</a> with <svg class="text-primary-400 ml-1" style="float: right;padding-bottom: 5px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect width="24" height="24" fill="none"/><g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M18.494 3.801c2.095 1.221 3.569 3.7 3.504 6.592C21.86 16.5 13.5 21 12 21s-9.861-4.5-9.998-10.607c-.065-2.892 1.409-5.37 3.504-6.592C7.466 2.66 9.928 2.653 12 4.338c2.072-1.685 4.534-1.679 6.494-.537"/></g></svg></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm" onclick="closeQRModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background-800 border border-white/10 rounded-xl p-6 w-full max-w-md">
+            <button class="absolute top-3 right-3 text-gray-400 hover:text-white" onclick="closeQRModal()">
+                <iconify-icon icon="heroicons:x-mark" width="24" height="24"></iconify-icon>
+            </button>
+            <h3 class="text-xl font-semibold mb-4 text-center">QR-код для сканирования</h3>
+            <div id="qrcode-container" class="flex justify-center mb-4">
+                <div id="qrcode" class="p-4 bg-white rounded-lg flex justify-center items-center min-h-[400px] min-w-[400px]"></div>
+            </div>
+            <p class="text-gray-300 text-sm text-center mb-4">
+                Отсканируйте этот QR-код с помощью приложения на вашем устройстве для быстрой настройки
+            </p>
+            <div class="text-center">
+                <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg" onclick="closeQRModal()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification for copy -->
+    <div id="copy-toast" class="fixed bottom-4 right-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-10 opacity-0 transition-all duration-300 z-50">
+        Скопировано в буфер обмена
+    </div>
+
+    <!-- QRCode.js -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <!-- Fallback QRCode sources if the primary one fails -->
+    <script>
+        // Функция определения операционной системы пользователя
+        function detectOS() {
+            const userAgent = navigator.userAgent.toLowerCase();
+
+            if (userAgent.includes('win')) {
+                return 'windows';
+            } else if (userAgent.includes('mac') && !userAgent.includes('iphone') && !userAgent.includes('ipad')) {
+                return 'macos';
+            } else if (userAgent.includes('android')) {
+                return 'android';
+            } else if (userAgent.includes('iphone') || userAgent.includes('ipad') || userAgent.includes('ipod')) {
+                return 'ios';
+            } else if (userAgent.includes('linux')) {
+                return 'linux';
+            } else {
+                return 'unknown';
+            }
+        }
+        
+        // Функция автоматического раскрытия списка клиентов в зависимости от ОС
+        function autoExpandClientList() {
+            const userOS = detectOS();
+            const clientListId = userOS + '-clients';
+            
+            // Проверяем, существует ли элемент с таким ID
+            const clientList = document.getElementById(clientListId);
+            if (clientList) {
+                // Раскрываем список соответствующей ОС
+                clientList.classList.remove('hidden');
+                
+                // Вращаем иконку
+                const iconElement = document.getElementById(clientListId + '-icon');
+                if (iconElement) {
+                    iconElement.style.transform = 'rotate(180deg)';
+                }
+            }
+        }
+        
+        // Check if QRCode is defined, if not load alternative sources
+        window.addEventListener('DOMContentLoaded', function() {
+            // Автоматически раскрываем список клиентов для текущей ОС
+            autoExpandClientList();
+            
+            if (typeof QRCode === 'undefined') {
+                console.log('Primary QR code library failed to load, trying alternatives...');
+                
+                // Load first alternative
+                const script1 = document.createElement('script');
+                script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+                script1.onload = function() {
+                    console.log('Loaded alternative QR code library 1');
+                };
+                script1.onerror = function() {
+                    // If first alternative fails, try second alternative
+                    console.log('Alternative QR code library 1 failed, trying next one...');
+                    const script2 = document.createElement('script');
+                    script2.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+                    script2.onload = function() {
+                        console.log('Loaded alternative QR code library 2');
+                    };
+                    document.body.appendChild(script2);
+                };
+                document.body.appendChild(script1);
+            }
+        });
+    </script>
+
+    <!-- JavaScript -->
+    <script>
+        // Subscription URL handling
+        const subname = "{{ user.username }}";
+        const sub = "{{ user.subscription_url }}";
+        let fullUrl = sub;
+        
+        // Check if subscription_url is already a full URL or a path
+        if (!sub.startsWith("http") && !sub.startsWith("/")) {
+            fullUrl = `${window.location.origin}/${sub}`;
+        } else if (!sub.startsWith("http") && sub.startsWith("/")) {
+            fullUrl = `${window.location.origin}${sub}`;
+        }
+        
+        // Function to extract name from config URL for display
+        function extractNameFromConfigURL(url) {
+            let serverName = '';
+            let flagIcon = '';
+            
+            // Helper function to determine flag icon based on server name
+            function getFlagIcon(name) {
+                const nameUpper = name.toUpperCase();
+                
+                // Function to check if country code appears at the beginning of a word
+                function startsWithCode(text, code) {
+                    const regex = new RegExp('\\b' + code + '\\b', 'i');
+                    return regex.test(text);
+                }
+                
+                if (startsWithCode(nameUpper, "AD")) {
+                    return '<iconify-icon icon="emojione:flag-for-andorra" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AE")) {
+                    return '<iconify-icon icon="emojione:flag-for-united-arab-emirates" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AF")) {
+                    return '<iconify-icon icon="emojione:flag-for-afghanistan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AG")) {
+                    return '<iconify-icon icon="emojione:flag-for-antigua-barbuda" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AI")) {
+                    return '<iconify-icon icon="emojione:flag-for-anguilla" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AL")) {
+                    return '<iconify-icon icon="emojione:flag-for-albania" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AM")) {
+                    return '<iconify-icon icon="emojione:flag-for-armenia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AO")) {
+                    return '<iconify-icon icon="emojione:flag-for-angola" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AQ")) {
+                    return '<iconify-icon icon="emojione:flag-for-antarctica" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AR")) {
+                    return '<iconify-icon icon="emojione:flag-for-argentina" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AS")) {
+                    return '<iconify-icon icon="emojione:flag-for-american-samoa" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AT")) {
+                    return '<iconify-icon icon="emojione:flag-for-austria" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AU")) {
+                    return '<iconify-icon icon="emojione:flag-for-australia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AW")) {
+                    return '<iconify-icon icon="emojione:flag-for-aruba" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AX")) {
+                    return '<iconify-icon icon="emojione:flag-for-aland-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "AZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-azerbaijan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BA")) {
+                    return '<iconify-icon icon="emojione:flag-for-bosnia-herzegovina" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BB")) {
+                    return '<iconify-icon icon="emojione:flag-for-barbados" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BD")) {
+                    return '<iconify-icon icon="emojione:flag-for-bangladesh" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BE")) {
+                    return '<iconify-icon icon="emojione:flag-for-belgium" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BF")) {
+                    return '<iconify-icon icon="emojione:flag-for-burkina-faso" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BG")) {
+                    return '<iconify-icon icon="emojione:flag-for-bulgaria" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BH")) {
+                    return '<iconify-icon icon="emojione:flag-for-bahrain" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BI")) {
+                    return '<iconify-icon icon="emojione:flag-for-burundi" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BJ")) {
+                    return '<iconify-icon icon="emojione:flag-for-benin" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BL")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-barthelemy" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BM")) {
+                    return '<iconify-icon icon="emojione:flag-for-bermuda" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BN")) {
+                    return '<iconify-icon icon="emojione:flag-for-brunei" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BO")) {
+                    return '<iconify-icon icon="emojione:flag-for-bolivia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BQ")) {
+                    return '<iconify-icon icon="emojione:flag-for-caribbean-netherlands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BR")) {
+                    return '<iconify-icon icon="emojione:flag-for-brazil" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BS")) {
+                    return '<iconify-icon icon="emojione:flag-for-bahamas" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BT")) {
+                    return '<iconify-icon icon="emojione:flag-for-bhutan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BV")) {
+                    return '<iconify-icon icon="emojione:flag-for-bouvet-island" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BW")) {
+                    return '<iconify-icon icon="emojione:flag-for-botswana" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BY")) {
+                    return '<iconify-icon icon="emojione:flag-for-belarus" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "BZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-belize" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CA")) {
+                    return '<iconify-icon icon="emojione:flag-for-canada" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CC")) {
+                    return '<iconify-icon icon="emojione:flag-for-cocos-keeling-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CD")) {
+                    return '<iconify-icon icon="emojione:flag-for-congo-kinshasa" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CF")) {
+                    return '<iconify-icon icon="emojione:flag-for-central-african-republic" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CG")) {
+                    return '<iconify-icon icon="emojione:flag-for-congo-brazzaville" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CH")) {
+                    return '<iconify-icon icon="emojione:flag-for-switzerland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CI")) {
+                    return '<iconify-icon icon="emojione:flag-for-cote-divoire" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CK")) {
+                    return '<iconify-icon icon="emojione:flag-for-cook-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CL")) {
+                    return '<iconify-icon icon="emojione:flag-for-chile" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CM")) {
+                    return '<iconify-icon icon="emojione:flag-for-cameroon" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CN")) {
+                    return '<iconify-icon icon="emojione:flag-for-china" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CO")) {
+                    return '<iconify-icon icon="emojione:flag-for-colombia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CR")) {
+                    return '<iconify-icon icon="emojione:flag-for-costa-rica" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CU")) {
+                    return '<iconify-icon icon="emojione:flag-for-cuba" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CV")) {
+                    return '<iconify-icon icon="emojione:flag-for-cape-verde" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CW")) {
+                    return '<iconify-icon icon="emojione:flag-for-curacao" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CX")) {
+                    return '<iconify-icon icon="emojione:flag-for-christmas-island" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CY")) {
+                    return '<iconify-icon icon="emojione:flag-for-cyprus" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "CZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-czechia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DE")) {
+                    return '<iconify-icon icon="emojione:flag-for-germany" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DJ")) {
+                    return '<iconify-icon icon="emojione:flag-for-djibouti" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DK")) {
+                    return '<iconify-icon icon="emojione:flag-for-denmark" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DM")) {
+                    return '<iconify-icon icon="emojione:flag-for-dominica" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DO")) {
+                    return '<iconify-icon icon="emojione:flag-for-dominican-republic" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "DZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-algeria" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "EC")) {
+                    return '<iconify-icon icon="emojione:flag-for-ecuador" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "EE")) {
+                    return '<iconify-icon icon="emojione:flag-for-estonia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "EG")) {
+                    return '<iconify-icon icon="emojione:flag-for-egypt" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "EH")) {
+                    return '<iconify-icon icon="emojione:flag-for-western-sahara" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ER")) {
+                    return '<iconify-icon icon="emojione:flag-for-eritrea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ES")) {
+                    return '<iconify-icon icon="emojione:flag-for-spain" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ET")) {
+                    return '<iconify-icon icon="emojione:flag-for-ethiopia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FI")) {
+                    return '<iconify-icon icon="emojione:flag-for-finland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FJ")) {
+                    return '<iconify-icon icon="emojione:flag-for-fiji" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FK")) {
+                    return '<iconify-icon icon="emojione:flag-for-falkland-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FM")) {
+                    return '<iconify-icon icon="emojione:flag-for-micronesia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FO")) {
+                    return '<iconify-icon icon="emojione:flag-for-faroe-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "FR")) {
+                    return '<iconify-icon icon="emojione:flag-for-france" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GA")) {
+                    return '<iconify-icon icon="emojione:flag-for-gabon" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GB") || startsWithCode(nameUpper, "UK")) {
+                    return '<iconify-icon icon="emojione:flag-for-united-kingdom" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GD")) {
+                    return '<iconify-icon icon="emojione:flag-for-grenada" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GE")) {
+                    return '<iconify-icon icon="emojione:flag-for-georgia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GF")) {
+                    return '<iconify-icon icon="emojione:flag-for-french-guiana" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GG")) {
+                    return '<iconify-icon icon="emojione:flag-for-guernsey" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GH")) {
+                    return '<iconify-icon icon="emojione:flag-for-ghana" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GI")) {
+                    return '<iconify-icon icon="emojione:flag-for-gibraltar" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GL")) {
+                    return '<iconify-icon icon="emojione:flag-for-greenland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GM")) {
+                    return '<iconify-icon icon="emojione:flag-for-gambia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GN")) {
+                    return '<iconify-icon icon="emojione:flag-for-guinea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GP")) {
+                    return '<iconify-icon icon="emojione:flag-for-guadeloupe" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GQ")) {
+                    return '<iconify-icon icon="emojione:flag-for-equatorial-guinea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GR")) {
+                    return '<iconify-icon icon="emojione:flag-for-greece" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GS")) {
+                    return '<iconify-icon icon="emojione:flag-for-south-georgia-south-sandwich-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GT")) {
+                    return '<iconify-icon icon="emojione:flag-for-guatemala" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GU")) {
+                    return '<iconify-icon icon="emojione:flag-for-guam" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GW")) {
+                    return '<iconify-icon icon="emojione:flag-for-guinea-bissau" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "GY")) {
+                    return '<iconify-icon icon="emojione:flag-for-guyana" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HK")) {
+                    return '<iconify-icon icon="emojione:flag-for-hong-kong-sar-china" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HM")) {
+                    return '<iconify-icon icon="emojione:flag-for-heard-mcdonald-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HN")) {
+                    return '<iconify-icon icon="emojione:flag-for-honduras" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HR")) {
+                    return '<iconify-icon icon="emojione:flag-for-croatia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HT")) {
+                    return '<iconify-icon icon="emojione:flag-for-haiti" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "HU")) {
+                    return '<iconify-icon icon="emojione:flag-for-hungary" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ID")) {
+                    return '<iconify-icon icon="emojione:flag-for-indonesia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IE")) {
+                    return '<iconify-icon icon="emojione:flag-for-ireland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IL")) {
+                    return '<iconify-icon icon="emojione:flag-for-israel" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IM")) {
+                    return '<iconify-icon icon="emojione:flag-for-isle-of-man" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IN")) {
+                    return '<iconify-icon icon="emojione:flag-for-india" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IO")) {
+                    return '<iconify-icon icon="emojione:flag-for-british-indian-ocean-territory" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IQ")) {
+                    return '<iconify-icon icon="emojione:flag-for-iraq" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IR")) {
+                    return '<iconify-icon icon="emojione:flag-for-iran" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IS")) {
+                    return '<iconify-icon icon="emojione:flag-for-iceland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "IT")) {
+                    return '<iconify-icon icon="emojione:flag-for-italy" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "JE")) {
+                    return '<iconify-icon icon="emojione:flag-for-jersey" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "JM")) {
+                    return '<iconify-icon icon="emojione:flag-for-jamaica" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "JO")) {
+                    return '<iconify-icon icon="emojione:flag-for-jordan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "JP")) {
+                    return '<iconify-icon icon="emojione:flag-for-japan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KE")) {
+                    return '<iconify-icon icon="emojione:flag-for-kenya" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KG")) {
+                    return '<iconify-icon icon="emojione:flag-for-kyrgyzstan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KH")) {
+                    return '<iconify-icon icon="emojione:flag-for-cambodia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KI")) {
+                    return '<iconify-icon icon="emojione:flag-for-kiribati" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KM")) {
+                    return '<iconify-icon icon="emojione:flag-for-comoros" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KN")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-kitts-nevis" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KP")) {
+                    return '<iconify-icon icon="emojione:flag-for-north-korea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KR")) {
+                    return '<iconify-icon icon="emojione:flag-for-south-korea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KW")) {
+                    return '<iconify-icon icon="emojione:flag-for-kuwait" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KY")) {
+                    return '<iconify-icon icon="emojione:flag-for-cayman-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "KZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-kazakhstan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LA")) {
+                    return '<iconify-icon icon="emojione:flag-for-laos" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LB")) {
+                    return '<iconify-icon icon="emojione:flag-for-lebanon" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LC")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-lucia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LI")) {
+                    return '<iconify-icon icon="emojione:flag-for-liechtenstein" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LK")) {
+                    return '<iconify-icon icon="emojione:flag-for-sri-lanka" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LR")) {
+                    return '<iconify-icon icon="emojione:flag-for-liberia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LS")) {
+                    return '<iconify-icon icon="emojione:flag-for-lesotho" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LT")) {
+                    return '<iconify-icon icon="emojione:flag-for-lithuania" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LU")) {
+                    return '<iconify-icon icon="emojione:flag-for-luxembourg" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LV")) {
+                    return '<iconify-icon icon="emojione:flag-for-latvia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "LY")) {
+                    return '<iconify-icon icon="emojione:flag-for-libya" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MA")) {
+                    return '<iconify-icon icon="emojione:flag-for-morocco" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MC")) {
+                    return '<iconify-icon icon="emojione:flag-for-monaco" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MD")) {
+                    return '<iconify-icon icon="emojione:flag-for-moldova" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ME")) {
+                    return '<iconify-icon icon="emojione:flag-for-montenegro" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MF")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-martin" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MG")) {
+                    return '<iconify-icon icon="emojione:flag-for-madagascar" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MH")) {
+                    return '<iconify-icon icon="emojione:flag-for-marshall-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MK")) {
+                    return '<iconify-icon icon="emojione:flag-for-north-macedonia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ML")) {
+                    return '<iconify-icon icon="emojione:flag-for-mali" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MM")) {
+                    return '<iconify-icon icon="emojione:flag-for-myanmar-burma" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MN")) {
+                    return '<iconify-icon icon="emojione:flag-for-mongolia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MO")) {
+                    return '<iconify-icon icon="emojione:flag-for-macao-sar-china" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MP")) {
+                    return '<iconify-icon icon="emojione:flag-for-northern-mariana-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MQ")) {
+                    return '<iconify-icon icon="emojione:flag-for-martinique" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MR")) {
+                    return '<iconify-icon icon="emojione:flag-for-mauritania" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MS")) {
+                    return '<iconify-icon icon="emojione:flag-for-montserrat" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MT")) {
+                    return '<iconify-icon icon="emojione:flag-for-malta" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MU")) {
+                    return '<iconify-icon icon="emojione:flag-for-mauritius" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MV")) {
+                    return '<iconify-icon icon="emojione:flag-for-maldives" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MW")) {
+                    return '<iconify-icon icon="emojione:flag-for-malawi" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MX")) {
+                    return '<iconify-icon icon="emojione:flag-for-mexico" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MY")) {
+                    return '<iconify-icon icon="emojione:flag-for-malaysia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "MZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-mozambique" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NA")) {
+                    return '<iconify-icon icon="emojione:flag-for-namibia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NC")) {
+                    return '<iconify-icon icon="emojione:flag-for-new-caledonia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NE")) {
+                    return '<iconify-icon icon="emojione:flag-for-niger" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NF")) {
+                    return '<iconify-icon icon="emojione:flag-for-norfolk-island" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NG")) {
+                    return '<iconify-icon icon="emojione:flag-for-nigeria" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NI")) {
+                    return '<iconify-icon icon="emojione:flag-for-nicaragua" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NL")) {
+                    return '<iconify-icon icon="emojione:flag-for-netherlands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NO")) {
+                    return '<iconify-icon icon="emojione:flag-for-norway" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NP")) {
+                    return '<iconify-icon icon="emojione:flag-for-nepal" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NR")) {
+                    return '<iconify-icon icon="emojione:flag-for-nauru" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NU")) {
+                    return '<iconify-icon icon="emojione:flag-for-niue" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "NZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-new-zealand" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "OM")) {
+                    return '<iconify-icon icon="emojione:flag-for-oman" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PA")) {
+                    return '<iconify-icon icon="emojione:flag-for-panama" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PE")) {
+                    return '<iconify-icon icon="emojione:flag-for-peru" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PF")) {
+                    return '<iconify-icon icon="emojione:flag-for-french-polynesia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PG")) {
+                    return '<iconify-icon icon="emojione:flag-for-papua-new-guinea" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PH")) {
+                    return '<iconify-icon icon="emojione:flag-for-philippines" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PK")) {
+                    return '<iconify-icon icon="emojione:flag-for-pakistan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PL")) {
+                    return '<iconify-icon icon="emojione:flag-for-poland" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PM")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-pierre-miquelon" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PN")) {
+                    return '<iconify-icon icon="emojione:flag-for-pitcairn-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PR")) {
+                    return '<iconify-icon icon="emojione:flag-for-puerto-rico" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PS")) {
+                    return '<iconify-icon icon="emojione:flag-for-palestinian-territories" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PT")) {
+                    return '<iconify-icon icon="emojione:flag-for-portugal" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PW")) {
+                    return '<iconify-icon icon="emojione:flag-for-palau" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "PY")) {
+                    return '<iconify-icon icon="emojione:flag-for-paraguay" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "QA")) {
+                    return '<iconify-icon icon="emojione:flag-for-qatar" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "RE")) {
+                    return '<iconify-icon icon="emojione:flag-for-reunion" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "RO")) {
+                    return '<iconify-icon icon="emojione:flag-for-romania" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "RS")) {
+                    return '<iconify-icon icon="emojione:flag-for-serbia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "RU")) {
+                    return '<iconify-icon icon="emojione:flag-for-russia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "RW")) {
+                    return '<iconify-icon icon="emojione:flag-for-rwanda" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SA")) {
+                    return '<iconify-icon icon="emojione:flag-for-saudi-arabia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SB")) {
+                    return '<iconify-icon icon="emojione:flag-for-solomon-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SC")) {
+                    return '<iconify-icon icon="emojione:flag-for-seychelles" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SD")) {
+                    return '<iconify-icon icon="emojione:flag-for-sudan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SE")) {
+                    return '<iconify-icon icon="emojione:flag-for-sweden" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SG")) {
+                    return '<iconify-icon icon="emojione:flag-for-singapore" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SH")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-helena" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SI")) {
+                    return '<iconify-icon icon="emojione:flag-for-slovenia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SJ")) {
+                    return '<iconify-icon icon="emojione:flag-for-svalbard-jan-mayen" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SK")) {
+                    return '<iconify-icon icon="emojione:flag-for-slovakia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SL")) {
+                    return '<iconify-icon icon="emojione:flag-for-sierra-leone" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SM")) {
+                    return '<iconify-icon icon="emojione:flag-for-san-marino" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SN")) {
+                    return '<iconify-icon icon="emojione:flag-for-senegal" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SO")) {
+                    return '<iconify-icon icon="emojione:flag-for-somalia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SR")) {
+                    return '<iconify-icon icon="emojione:flag-for-suriname" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SS")) {
+                    return '<iconify-icon icon="emojione:flag-for-south-sudan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ST")) {
+                    return '<iconify-icon icon="emojione:flag-for-sao-tome-principe" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SV")) {
+                    return '<iconify-icon icon="emojione:flag-for-el-salvador" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SX")) {
+                    return '<iconify-icon icon="emojione:flag-for-sint-maarten" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SY")) {
+                    return '<iconify-icon icon="emojione:flag-for-syria" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "SZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-eswatini" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TC")) {
+                    return '<iconify-icon icon="emojione:flag-for-turks-caicos-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TD")) {
+                    return '<iconify-icon icon="emojione:flag-for-chad" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TF")) {
+                    return '<iconify-icon icon="emojione:flag-for-french-southern-territories" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TG")) {
+                    return '<iconify-icon icon="emojione:flag-for-togo" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TH")) {
+                    return '<iconify-icon icon="emojione:flag-for-thailand" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TJ")) {
+                    return '<iconify-icon icon="emojione:flag-for-tajikistan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TK")) {
+                    return '<iconify-icon icon="emojione:flag-for-tokelau" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TL")) {
+                    return '<iconify-icon icon="emojione:flag-for-timor-leste" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TM")) {
+                    return '<iconify-icon icon="emojione:flag-for-turkmenistan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TN")) {
+                    return '<iconify-icon icon="emojione:flag-for-tunisia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TO")) {
+                    return '<iconify-icon icon="emojione:flag-for-tonga" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TR")) {
+                    return '<iconify-icon icon="emojione:flag-for-turkey" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TT")) {
+                    return '<iconify-icon icon="emojione:flag-for-trinidad-tobago" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TV")) {
+                    return '<iconify-icon icon="emojione:flag-for-tuvalu" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TW")) {
+                    return '<iconify-icon icon="emojione:flag-for-taiwan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "TZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-tanzania" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "UA")) {
+                    return '<iconify-icon icon="emojione:flag-for-ukraine" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "UG")) {
+                    return '<iconify-icon icon="emojione:flag-for-uganda" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "UM")) {
+                    return '<iconify-icon icon="emojione:flag-for-us-outlying-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "US")) {
+                    return '<iconify-icon icon="emojione:flag-for-united-states" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "UY")) {
+                    return '<iconify-icon icon="emojione:flag-for-uruguay" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "UZ")) {
+                    return '<iconify-icon icon="emojione:flag-for-uzbekistan" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VA")) {
+                    return '<iconify-icon icon="emojione:flag-for-vatican-city" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VC")) {
+                    return '<iconify-icon icon="emojione:flag-for-st-vincent-grenadines" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VE")) {
+                    return '<iconify-icon icon="emojione:flag-for-venezuela" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VG")) {
+                    return '<iconify-icon icon="emojione:flag-for-british-virgin-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VI")) {
+                    return '<iconify-icon icon="emojione:flag-for-us-virgin-islands" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VN")) {
+                    return '<iconify-icon icon="emojione:flag-for-vietnam" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "VU")) {
+                    return '<iconify-icon icon="emojione:flag-for-vanuatu" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "WF")) {
+                    return '<iconify-icon icon="emojione:flag-for-wallis-futuna" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "WS")) {
+                    return '<iconify-icon icon="emojione:flag-for-samoa" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "YE")) {
+                    return '<iconify-icon icon="emojione:flag-for-yemen" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "YT")) {
+                    return '<iconify-icon icon="emojione:flag-for-mayotte" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ZA")) {
+                    return '<iconify-icon icon="emojione:flag-for-south-africa" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ZM")) {
+                    return '<iconify-icon icon="emojione:flag-for-zambia" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else if (startsWithCode(nameUpper, "ZW")) {
+                    return '<iconify-icon icon="emojione:flag-for-zimbabwe" class="mr-2" width="20" height="20"></iconify-icon>';
+                } else {
+                    return '<iconify-icon icon="heroicons:globe-alt" class="mr-2" width="20" height="20"></iconify-icon>';
+                }
+            }
+
+            if (url.includes("/sub")) {
+                const regex = /\/sub\/([^/]+)/;
+                const match = url.match(regex);
+                if (match && match[1]) {
+                    serverName = decodeURIComponent(match[1]);
+                } else {
+                    serverName = "Subscription";
+                }
+                
+                // Use the helper function to determine the flag
+                flagIcon = getFlagIcon(serverName);
+                
+                return { name: serverName, flag: flagIcon };
+            } else if (url.startsWith("vmess://")) {
+                try {
+                    const encodedString = url.replace("vmess://", "");
+                    const decodedString = atob(encodedString);
+                    serverName = JSON.parse(decodedString).ps || "VMess";
+                    
+                    // Use the helper function to determine the flag
+                    flagIcon = getFlagIcon(serverName);
+                    
+                    return { name: serverName, flag: flagIcon };
+                } catch (e) {
+                    console.error("Error decoding VMess URL:", e);
+                    return { name: "VMess", flag: '<iconify-icon icon="heroicons:globe-alt" class="mr-2" width="20" height="20"></iconify-icon>' };
+                }
+            } else if (url.startsWith("vless://")) {
+                // Extract server name from VLESS URL if possible
+                try {
+                    const uriParts = url.split('@');
+                    if (uriParts.length > 1) {
+                        // Check if there's a "#" indicating remark/name
+                        const remarkParts = url.split('#');
+                        if (remarkParts.length > 1) {
+                            serverName = decodeURIComponent(remarkParts[1]);
+                        } else {
+                            serverName = "VLESS";
+                        }
+                    } else {
+                        serverName = "VLESS";
+                    }
+                    
+                    // Use the helper function to determine the flag
+                    flagIcon = getFlagIcon(serverName);
+                    
+                    return { name: serverName, flag: flagIcon };
+                } catch (e) {
+                    console.error("Error parsing VLESS URL:", e);
+                    return { name: "VLESS", flag: '<iconify-icon icon="heroicons:globe-alt" class="mr-2" width="20" height="20"></iconify-icon>' };
+                }
+            } else if (url.startsWith("trojan://")) {
+                // Extract server name from Trojan URL if possible
+                try {
+                    // Check if there's a "#" indicating remark/name
+                    const remarkParts = url.split('#');
+                    if (remarkParts.length > 1) {
+                        serverName = decodeURIComponent(remarkParts[1]);
+                    } else {
+                        serverName = "Trojan";
+                    }
+                    
+                    // Use the helper function to determine the flag
+                    flagIcon = getFlagIcon(serverName);
+                    
+                    return { name: serverName, flag: flagIcon };
+                } catch (e) {
+                    console.error("Error parsing Trojan URL:", e);
+                    return { name: "Trojan", flag: '<iconify-icon icon="heroicons:globe-alt" class="mr-2" width="20" height="20"></iconify-icon>' };
+                }
+            } else if (url.startsWith("ss://")) {
+                // Extract server name from Shadowsocks URL if possible
+                try {
+                    // Check if there's a "#" indicating remark/name
+                    const remarkParts = url.split('#');
+                    if (remarkParts.length > 1) {
+                        serverName = decodeURIComponent(remarkParts[1]);
+                    } else {
+                        serverName = "Shadowsocks";
+                    }
+                    
+                    // Use the helper function to determine the flag
+                    flagIcon = getFlagIcon(serverName);
+                    
+                    return { name: serverName, flag: flagIcon };
+                } catch (e) {
+                    console.error("Error parsing Shadowsocks URL:", e);
+                    return { name: "Shadowsocks", flag: '<iconify-icon icon="heroicons:globe-alt" class="mr-2" width="20" height="20"></iconify-icon>' };
+                }
+            } else {
+                // Extract the last part of the URL as the name
+                const parts = url.split('/');
+                serverName = parts[parts.length - 1];
+                
+                // Use the helper function to determine the flag
+                flagIcon = getFlagIcon(serverName);
+                
+                return { name: serverName, flag: flagIcon };
+            }
+        }
+        
+        // Render the links from the user.links variable
+        function renderLinks() {
+            const subLinks = "{{ user.links }}";
+            const linksElement = document.getElementById("links_section");
+            
+            if (!subLinks || subLinks === "[]") {
+                linksElement.innerHTML = `<div class="text-gray-400 text-sm text-center py-4">Ссылки отсутствуют</div>`;
+                return;
+            }
+            
+            // Clean up the string format from Python list
+            const cleanedString = subLinks.replace(/[\[\]']/g, '');
+            
+            // Split the cleaned string into an array using ', ' as the delimiter
+            const linksArray = cleanedString.split(', ');
+            
+            linksArray.forEach((link, index) => {
+                const protocolInfo = extractNameFromConfigURL(link);
+                const isReality = protocolInfo.name.toLowerCase().includes('reality');
+                
+                // Recommended badge for Reality links
+                const recommendedBadge = isReality ? 
+                    `<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                        <span class="w-2 h-2 mr-1 rounded-full bg-blue-500"></span>
+                        Рекомендуемый
+                    </span>` : '';
+                
+                linksElement.innerHTML += `
+                    <div class="p-4 ${isReality ? 'bg-blue-900/20' : 'bg-background-800/50'} rounded-lg border ${isReality ? 'border-blue-500/20' : 'border-white/5'} flex flex-col md:flex-row md:items-center gap-3 relative overflow-hidden ${isReality ? 'hover:border-blue-500/30' : 'hover:border-white/10'} transition-all duration-300">
+                        ${isReality ? '<div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/0 to-blue-500/10 opacity-30"></div>' : ''}
+                        <div class="flex-1 overflow-hidden relative z-10 min-w-0">
+                            <div class="font-medium text-white flex items-center flex-wrap">
+                                ${protocolInfo.flag}
+                                <span class="truncate mr-2">${protocolInfo.name}</span>
+                                ${recommendedBadge}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-x-2 relative z-10 ml-auto shrink-0">
+                            <button onclick="copyToClipboard('direct', '', '${link}')" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors rounded-lg px-3 py-2 text-sm font-medium text-primary-400 flex items-center">
+                                <iconify-icon icon="heroicons:clipboard-document" class="mr-2" width="16" height="16"></iconify-icon>
+                                Copy
+                            </button>
+                            <button onclick="showQRCodeDirect('${link}')" class="bg-primary-500/10 hover:bg-primary-500/20 transition-colors rounded-lg px-3 py-2 text-sm font-medium text-primary-400 flex items-center">
+                                <iconify-icon icon="heroicons:qr-code" class="mr-2" width="16" height="16"></iconify-icon>
+                                QR Code
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Call the renderLinks function when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            renderLinks();
+            
+            // Initialize other DOM elements that might need it
+            // Traffic usage and expiration calculations are handled elsewhere
+        });
+        
+        // Modified function to handle direct links
+        function showQRCodeDirect(url) {
+            // Clear previous QR code
+            document.getElementById('qrcode').innerHTML = '';
+            
+            try {
+                // Display modal first
+                document.getElementById('qr-modal').classList.remove('hidden');
+                
+                // Calculate QR code size based on screen dimensions
+                let qrSize = window.innerWidth > 450 ? 
+                             (window.innerHeight > 450 ? 400 : window.innerHeight - 200) : 
+                             window.innerHeight > 450 ? window.innerWidth - 100 : Math.min(window.innerWidth, window.innerHeight) - 100;
+                qrSize = Math.max(200, qrSize); // Set minimum size
+                
+                // Wait a tiny bit for modal to be visible before generating QR
+                setTimeout(() => {
+                    if (typeof QRCode === 'undefined') {
+                        console.error("QRCode library not loaded");
+                        alert("Ошибка при создании QR кода. Библиотека не загружена.");
+                        return;
+                    }
+                    
+                    // Generate QR code
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: url,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        width: qrSize,
+                        height: qrSize,
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }, 100);
+            } catch (error) {
+                console.error("Error generating QR code:", error);
+                alert("Ошибка при создании QR кода. Пожалуйста, попробуйте еще раз.");
+            }
+        }
+        
+        // Modified copyToClipboard function to handle direct links
+        function copyToClipboard(protocol, transport, directLink = null) {
+            let textToCopy = '';
+            
+            // If a direct link is provided, use it
+            if (directLink) {
+                textToCopy = directLink;
+            } else {
+                // Otherwise generate the link based on protocol and transport
+                if (protocol === 'vmess') {
+                    textToCopy = `${fullUrl}/vmess/${transport}`;
+                } else if (protocol === 'vless') {
+                    textToCopy = `${fullUrl}/vless/${transport}`;
+                } else if (protocol === 'trojan') {
+                    textToCopy = `${fullUrl}/trojan/${transport}`;
+                } else if (protocol === 'shadowsocks') {
+                    textToCopy = `${fullUrl}/shadowsocks`;
+                } else if (protocol === 'clash') {
+                    textToCopy = `${fullUrl}/clash`;
+                } else if (protocol === 'singbox') {
+                    textToCopy = `${fullUrl}/singbox`;
+                }
+            }
+            
+            // Create a temporary text area element
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                // Attempt to copy the selected text to the clipboard
+                document.execCommand("copy");
+                
+                // Show toast notification
+                const toast = document.getElementById('copy-toast');
+                toast.classList.remove('translate-y-10', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                }, 3000);
+            } catch (err) {
+                console.error("Unable to copy text to clipboard:", err);
+                alert("Не удалось скопировать ссылку. Пожалуйста, попробуйте еще раз.");
+            } finally {
+                // Remove the temporary text area element
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Calculate and display usage statistics
+        document.addEventListener('DOMContentLoaded', function() {
+            // Traffic usage calculation
+            const trafficElement = document.querySelector('[data-used-traffic]');
+            if (trafficElement) {
+                const usedTrafficStr = trafficElement.getAttribute('data-used-traffic') || '0';
+                const dataLimitStr = trafficElement.getAttribute('data-data-limit') || '∞';
+                
+                // Проверяем на бесконечный лимит
+                if (dataLimitStr === '∞' || dataLimitStr === 'None' || dataLimitStr === 'NaN' || dataLimitStr === 'undefined') {
+                    // Если лимит бесконечный, устанавливаем символ бесконечности
+                    document.getElementById('traffic-percentage').textContent = '∞';
+                    document.getElementById('traffic-bar').style.width = '100%';
+                } else {
+                    // Обычная обработка для ограниченного трафика
+                    // Parse values, handling string values with units (like "10 GB")
+                    let usedTraffic = 0;
+                    let dataLimit = 0;
+                    
+                    // Helper function to parse values like "10 MB", "1.5 GB", etc.
+                    function parseTrafficValue(value) {
+                        if (value === '∞' || value === 'undefined') {
+                            return Infinity;
+                        }
+                        
+                        // If it's just a number as string
+                        if (/^\d+(\.\d+)?$/.test(value)) {
+                            return parseFloat(value);
+                        }
+                        
+                        // If it has units like "10 MB"
+                        const match = value.match(/^(\d+(\.\d+)?)\s*([KMGT]B)?$/i);
+                        if (match) {
+                            const num = parseFloat(match[1]);
+                            const unit = (match[3] || '').toUpperCase();
+                            
+                            switch (unit) {
+                                case 'KB': return num * 1024;
+                                case 'MB': return num * 1024 * 1024;
+                                case 'GB': return num * 1024 * 1024 * 1024;
+                                case 'TB': return num * 1024 * 1024 * 1024 * 1024;
+                                default: return num;
+                            }
+                        }
+                        
+                        return parseFloat(value) || 0;
+                    }
+                    
+                    usedTraffic = parseTrafficValue(usedTrafficStr);
+                    dataLimit = parseTrafficValue(dataLimitStr);
+                    
+                    // Calculate percentage
+                    let percentage = 0;
+                    if (!isFinite(dataLimit) || dataLimit === 0) {
+                        // If unlimited or zero, show some nominal percentage (e.g., 10%)
+                        percentage = 10;
+                    } else {
+                        percentage = Math.min(Math.round((usedTraffic / dataLimit) * 100), 100);
+                    }
+                    
+                    // Update the UI elements
+                    document.getElementById('traffic-percentage').textContent = `${percentage}%`;
+                    document.getElementById('traffic-bar').style.width = `${percentage}%`;
+                }
+            }
+            
+            // Expiration date calculation
+            const expireDateElements = document.querySelectorAll('.expire-date-display');
+            if (expireDateElements.length > 0) {
+                const expireDateStr = expireDateElements[0].textContent.trim();
+                
+                // Обработка специальных случаев
+                if (expireDateStr === 'None' || expireDateStr === 'Бессрочно' || expireDateStr === 'NaN' || expireDateStr === 'Never') {
+                    // Обновим текст на "Бессрочно"
+                    expireDateElements.forEach(el => {
+                        el.textContent = 'Бессрочно';
+                    });
+                    
+                    document.getElementById('expire-percentage').textContent = `∞`;
+                    document.getElementById('expire-bar').style.width = `100%`;
+                }
+                else if (expireDateStr && expireDateStr !== 'Never') {
+                    try {
+                        // Check if the date is a Unix timestamp (numeric string)
+                        let expireDate;
+                        if (/^\d+$/.test(expireDateStr)) {
+                            // Convert Unix timestamp to milliseconds (if in seconds)
+                            const timestamp = parseInt(expireDateStr);
+                            expireDate = new Date(timestamp * 1000); // Convert seconds to milliseconds
+                            
+                            // Update displayed date format
+                            expireDateElements.forEach(el => {
+                                el.textContent = expireDate.toLocaleDateString();
+                            });
+                        } else {
+                            // Parse as regular date string
+                            expireDate = new Date(expireDateStr);
+                        }
+                        
+                        const today = new Date();
+                        
+                        // Calculate days left
+                        const timeDiff = expireDate - today;
+                        const daysLeft = Math.max(0, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+                        const totalDays = 30; // Assuming a standard 30-day subscription
+                        
+                        // Calculate percentage
+                        const percentage = Math.min(Math.round((daysLeft / totalDays) * 100), 100);
+                        
+                        // Update the UI elements
+                        document.getElementById('expire-percentage').textContent = `${daysLeft}`;
+                        document.getElementById('expire-bar').style.width = `${percentage}%`;
+                    } catch (e) {
+                        console.error("Error calculating expiration date", e);
+                        // Set a fallback value instead of showing error
+                        document.getElementById('expire-percentage').textContent = '30';
+                        document.getElementById('expire-bar').style.width = '100%';
+                    }
+                } else {
+                    // Handle 'Never' case
+                    document.getElementById('expire-percentage').textContent = `∞`;
+                    document.getElementById('expire-bar').style.width = `100%`;
+                }
+            }
+        });
+
+        // Format bytes function (helper to display traffic values)
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            if (bytes === '∞' || bytes === Infinity || isNaN(bytes)) return '∞';
+            
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Client section toggle
+        function toggleClientList(id) {
+            const element = document.getElementById(id);
+            const iconElement = document.getElementById(id + '-icon');
+            element.classList.toggle('hidden');
+            
+            if(element.classList.contains('hidden')) {
+                iconElement.style.transform = 'rotate(0deg)';
+            } else {
+                iconElement.style.transform = 'rotate(180deg)';
+            }
+        }
+        
+        // QR Code functions
+        function showQRCode(protocol, transport) {
+            let url = '';
+            
+            // Format URLs according to template.html patterns
+            if (protocol === 'vmess') {
+                url = `${fullUrl}/vmess/${transport}`;
+            } else if (protocol === 'vless') {
+                url = `${fullUrl}/vless/${transport}`;
+            } else if (protocol === 'trojan') {
+                url = `${fullUrl}/trojan/${transport}`;
+            } else if (protocol === 'shadowsocks') {
+                url = `${fullUrl}/shadowsocks`;
+            } else if (protocol === 'clash') {
+                url = `${fullUrl}/clash`;
+            } else if (protocol === 'singbox') {
+                url = `${fullUrl}/singbox`;
+            }
+            
+            showQRCodeDirect(url);
+        }
+        
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+            document.getElementById('qrcode').innerHTML = '';
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Предотвращение прокрутки страницы при скролле в блоке настроек
+            const scrollableElements = document.querySelectorAll('.scrollable-content');
+            scrollableElements.forEach(elem => {
+                elem.addEventListener('wheel', function(e) {
+                    // Предотвращаем прокрутку страницы, если содержимое скроллится
+                    if (
+                        (e.deltaY > 0 && elem.scrollTop + elem.clientHeight >= elem.scrollHeight) ||
+                        (e.deltaY < 0 && elem.scrollTop <= 0)
+                    ) {
+                        // Достигнут верх или низ контента, разрешаем прокрутку страницы
+                    } else {
+                        // В пределах контента, предотвращаем прокрутку страницы
+                        e.stopPropagation();
+                    }
+                }, { passive: false });
+            });
+        });
+    </script>
+    <script>
+        // Initialize Windows clients by default
+        document.getElementById('windows-clients').classList.remove('hidden');
+        document.getElementById('windows-btn').classList.add('active');
+        
+        // Hide all other client sections
+        ['macos-clients', 'android-clients', 'ios-clients', 'linux-clients'].forEach(function(id) {
+            const element = document.getElementById(id);
+            if (element) element.classList.add('hidden');
+        });
+        
+        // Add click handlers to client buttons
+        document.getElementById('windows-btn').addEventListener('click', function() {
+            showClient('windows');
+        });
+        
+        document.getElementById('macos-btn').addEventListener('click', function() {
+            showClient('macos');
+        });
+        
+        document.getElementById('android-btn').addEventListener('click', function() {
+            showClient('android');
+        });
+        
+        document.getElementById('ios-btn').addEventListener('click', function() {
+            showClient('ios');
+        });
+        
+        document.getElementById('linux-btn').addEventListener('click', function() {
+            showClient('linux');
+        });
+        
+        // Function to switch between client tabs
+        function showClient(clientType) {
+            // Hide all client sections
+            document.querySelectorAll('[id$="-clients"]').forEach(function(section) {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected client section
+            document.getElementById(clientType + '-clients').classList.remove('hidden');
+            
+            // Update active button
+            document.querySelectorAll('.client-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById(clientType + '-btn').classList.add('active');
+        }
+    </script>
+    <script>
+        // QR code modal functionality
+        document.getElementById('close-qr-modal').addEventListener('click', function() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        });
+        
+        // Close QR code modal when clicking outside
+        document.getElementById('qr-modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                document.getElementById('qr-modal').classList.add('hidden');
+            }
+        });
+        
+        // Close QR code modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('qr-modal').classList.contains('hidden')) {
+                document.getElementById('qr-modal').classList.add('hidden');
+            }
+        });
+
+    </script>
+</body>
+</html>
